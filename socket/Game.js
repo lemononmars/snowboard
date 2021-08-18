@@ -226,6 +226,7 @@ export default function (io) {
     }
 
     abort(){
+      this.roundInfo.round = this.gameConfigs.roundLength // maybe there's a better way..... like state
       io.to(this.roomID).emit('end round', this.gameInfo())
       this.gameEnd()
     }
