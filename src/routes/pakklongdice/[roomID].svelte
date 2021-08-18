@@ -28,6 +28,7 @@
       })
    })
 
+   stateIndex.set(GAME_STATUS_PREGAME)
    $: actionButtonImgUrl = [0,1,2,3].map(x => `./pakklongdice/img/${$gameConfigs.chosenTheme}/${x+1}.png`)
    $: action_text =['Edit name', 'Abort','Abort','Return to lobby'][$stateIndex]
    $: answerLists = updateActionList(actionList)
@@ -102,7 +103,6 @@
    }
 
    socket.on('new game', function(data) {
-      console.log(data.gameConfigs)
       timer.coolDownTime = data.gameConfigs.solo? 2:5
       timer.roundTime = data.gameConfigs.difficulty == 3? 15:10
       $gameConfigs.chosenTheme = data.gameConfigs.chosenTheme // update theme in case another player changes it

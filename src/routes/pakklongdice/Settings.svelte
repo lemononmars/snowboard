@@ -1,5 +1,6 @@
 <script>
    import {gameConfigs} from '../../stores/game.js';
+   console.log($gameConfigs.loaded)
    
    const DEFAULT_THEME = $gameConfigs.loaded? $gameConfigs.chosenTheme: 'space' 
    const DEFAULT_DIFFICULTY = 2
