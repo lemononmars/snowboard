@@ -8,7 +8,7 @@ import socket from '../socket';
 const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === 'development';
 const server = http.createServer();
-polka({ server })
+const app = polka({ server })
 	.use(
 		compression({ threshold: 0 }),
 		sirv('static', { dev }),
@@ -17,7 +17,8 @@ polka({ server })
 		if (err) console.log('error', err);
 	});
 
-//export default app
+export default app
+module.exports = app
 const io = socketIo(server, {
   cors: {
     origin: PORT,
