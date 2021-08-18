@@ -1,10 +1,10 @@
 import io from 'socket.io-client';
 
-const socket = io({ 
+const socket = io('https://snowboard-sigma.vercel.app/',{ 
   secure: true, 
   reconnection: true, 
   rejectUnauthorized: false,
-  transports: ["websocket"]
+  transports: ['websocket', 'polling']
 })
 
 socket.on('connect', () => {
