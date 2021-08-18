@@ -1,11 +1,11 @@
 <script>
-   import { chosenTheme } from './stores.js';
+   import { gameConfigs } from '../../stores/game.js';
    export var questionDice = []
    const color_list = ['#F6A9A9', '#FFBF86', '#C2F784', '#FFF47D']
    const border_style_list = ['solid', 'dotted', 'dashed', 'double']
 
    $: questionDiceImages = questionDice.map(x => {return {
-               'url': `./pakklongdice/img/${$chosenTheme}/${x.type+1}.png`,
+               'url': `./pakklongdice/img/${$gameConfigs.chosenTheme}/${x.type+1}.png`,
                'color': color_list[x.color],
                'style': border_style_list[x.color]
             }});
@@ -20,12 +20,14 @@
 </div>
 
 <style>
+/* 
+mobile version 
+*/
 #dice-zone-container{
   position: fixed;
   width: 100%;
   top: 40%;
   left: 50%;
-  /* bring your own prefixes */
   transform: translate(-50%, -50%);
   text-align: center
 }
@@ -37,15 +39,17 @@
 
 @media only screen and (min-width: 720px){
 #dice-zone-container{
-   position: fixed;
-   bottom: 0;
-   right: 0;
-   text-align: center
+  position: relative;
+  width: auto;
+  top: 100px;
+  left: auto;
+  transform: none;
+  text-align: center
 }
 
 .dice-img{
-  height: 150px;
-  width: 150px;
+  height: 120px;
+  width: 120px;
   border-radius: 3px;
  }
 }

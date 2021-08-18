@@ -6,4 +6,6 @@
    }
 </script>
 
-<Lobby {...gameInfo}/>
+<div>
+   Coming soon....
+</div>

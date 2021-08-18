@@ -1,9 +1,10 @@
 <script>
-   import Playing from './Playing.svelte';
+   import InfoArea from './InfoArea.svelte';
    import Settings from './Settings.svelte';
    import {onMount} from 'svelte';
    import {goto} from '@sapper/app';
-   import {chosenTheme, stateIndex, difficulty, gameLength, shuffle, myUsername} from './stores.js';
+   import {gameInfo, gameConfigs, stateIndex} from '../../stores/game.js';
+   import {selfInfo} from '../../stores/'
    import socket from '../../stores/socket';
    // import Button from '@smui/button'; // doesn't work, sadly
    
@@ -21,31 +22,31 @@
    onMount(() =>{
       socket.emit('join room', roomID, func=>{
          if (!func.successful)
-            goto('/pakklongdice?errror=noroomID') // redirect to lobby if room is unavaible
+            goto('/pakklongdice?error=noroomID') // redirect to lobby if room is unavaible
          else
             socket.data.roomID = roomID
       })
    })
 
-   $: actionButtonImgUrl = [0,1,2,3].map(x => `./pakklongdice/img/${$chosenTheme}/${x+1}.png`)
+   $: actionButtonImgUrl = [0,1,2,3].map(x => `./pakklongdice/img/${$gameConfigs.chosenTheme}/${x+1}.png`)
    $: action_text =['Edit name', 'Abort','Abort','Return to lobby'][$stateIndex]
-   $: answerLists = updateAnswerList(gameInfo.playerInfo)
-   $: scoreBoard = updateScoreboard(gameInfo.playerInfo)
+   $: answerLists = updateActionList(actionList)
+   $: scoreBoard = updateScoreboard($gameInfo.playerInfo)
    var users = {}
 
    // TODO : put this in preload or afterupdate?
-   if(socket.data != null) {
-      myUsername.set(socket.data.username)
-      users[socket.data.userID] = socket.data.username
-   }
+   //if(socket.data != null) {
+      users[$selfInfo.userID] = $selfInfo.username
+   //}
 
    var questionDice
-   var gameInfo = {
+   gameInfo.set({
       roundInfo: {round: 0},
       playerInfo: {usernames:{}, scores:{}, actions:{}}
-   }
+   })
+   var actionList = {}
    var chosenAnswer = -1
-   var difficulty_str = ['easy', 'medium', 'hard'][$difficulty]
+   var difficulty_str = ['easy', 'medium', 'hard'][$gameConfigs.difficulty]
    
    var timer = {
       interval: null,
@@ -67,24 +68,19 @@
    }
 
    function startGame(){
-      socket.emit('start game', {
-         difficulty: $difficulty,
-         shuffle: $shuffle,
-         gameLength: $gameLength,
-         theme: $chosenTheme
-      })
+      socket.emit('start game', $gameConfigs)
    }
    
    socket.on('add player', (data) => {
       users[data.userID] = data.username
       // add dummy scores while waiting for the game to start
-      gameInfo.playerInfo.usernames[data.userID] = data.username
-      gameInfo.playerInfo.scores[data.userID] = 0
+      $gameInfo.playerInfo.usernames[data.userID] = data.username
+      $gameInfo.playerInfo.scores[data.userID] = 0
    })
 
    socket.on('remove player', (data) => {
       if (data.userID in playerInfo) {
-         delete gameInfo.playerInfo.usernames[data.userID]
+         delete $gameInfo.playerInfo.usernames[data.userID]
       }
    })
 
@@ -93,7 +89,7 @@
    */
 
    function submitAction(ans){
-      if ($stateIndex != 2 || chosenAnswer != -1)
+      if ($stateIndex != GAME_STATUS_PLAYING || chosenAnswer != -1)
          return;
       
       chosenAnswer = ans
@@ -106,41 +102,46 @@
    }
 
    socket.on('new game', function(data) {
+      console.log(data.gameConfigs)
       timer.coolDownTime = data.gameConfigs.solo? 2:5
       timer.roundTime = data.gameConfigs.difficulty == 3? 15:10
-      chosenTheme.set(data.gameConfigs.theme)
-      gameInfo = data
+      $gameConfigs.chosenTheme = data.gameConfigs.chosenTheme // update theme in case another player changes it
+      $gameInfo = data
       questionDice = []
+      actionList = {}
       stateIndex.set(GAME_STATUS_WAITING)
    });
 
    socket.on('new round', function(data) {
-      gameInfo = data
+      $gameInfo = data
       chosenAnswer = -1;
       stateIndex.set(GAME_STATUS_WAITING)
 
       // cool down and start
       setTimer(timer.coolDownTime, 'cyan')
       setTimeout(function(){
+         // reveal dice and reset round score once countdown is completed
          questionDice = data.gameComponents.dice
+         actionList = {}
          stateIndex.set(GAME_STATUS_PLAYING)
          setTimer(timer.roundTime, 'orangered')
       }, timer.coolDownTime * 1000)
    });
 
    socket.on('update answers', function(act) {
-      gameInfo.playerInfo.actions[act.userID] = act.action
+      actionList[act.userID] = act.action
    });
    
    socket.on('end round', function(data){
       setTimer(0, 'aquamarine')
-      gameInfo = data
+      $gameInfo = data
+      actionList = data.playerInfo.actions
    });
 
    socket.on('end game', function(data){
       setTimer(0, 'blue')
       stateIndex.set(GAME_STATUS_GAMEEND)
-      gameInfo = data
+      $gameInfo = data
    });
 
    /*
@@ -149,7 +150,7 @@
 
    function gameStateButton(){
       switch($stateIndex){
-         case GAME_STATUS_PREGAME: socket.emit('edit name', $myUsername); break;
+         case GAME_STATUS_PREGAME: socket.emit('edit name', $selfInfo.username); break;
          case GAME_STATUS_PLAYING:
          case GAME_STATUS_WAITING: socket.emit('abort'); clearInterval(timer.interval); break;
          case GAME_STATUS_GAMEEND: goto('/pakklongdice'); break;
@@ -180,11 +181,11 @@
       }})
    } 
 
-   function updateAnswerList(pinfo){
+   function updateActionList(actionList){
       var al = [[],[],[],[]]
-      for(const id in pinfo.actions)
-         al[pinfo.actions[id].action].push(
-            [pinfo.usernames[id], pinfo.actions[id].roundScore]
+      for(const id in actionList)
+         al[actionList[id].action].push(
+            [$gameInfo.playerInfo.usernames[id], actionList[id].roundScore] // plus time for debugging?
          )
       return al
    }
@@ -212,7 +213,7 @@
 
 <div id = 'game-area'>
    <div id = "user-info">
-      <input type="text" id="username" bind:value={$myUsername}/>
+      <input type="text" id="username" bind:value={$selfInfo.username}/>
       <button on:click={gameStateButton}>{action_text}</button>
    </div>
    {#if $stateIndex === 0 || $stateIndex === 3}
@@ -248,9 +249,9 @@
          </tr>
          <tr>
          {#each answerLists as lists}
-            <td>
+            <td class = 'answered-players'>
                {#each lists as [name,score]}
-               <div class = 'answered-players'>
+               <div>
                   {name} {#if $stateIndex != GAME_STATUS_PLAYING} :{score} {/if}
                </div>
                {/each}
@@ -258,16 +259,17 @@
          {/each}
          </tr>
    </div>
+
+   {#if $stateIndex != GAME_STATUS_PREGAME}
+      <InfoArea {questionDice}/>
+   {/if}
 </div>
 
-{#if $stateIndex != GAME_STATUS_PREGAME}
-<Playing questionDice={questionDice}/>
-{/if}
 
 <div id = 'score-area'>
    {#if $stateIndex != 0}
-      <span>Round {gameInfo.roundInfo.round} / {gameInfo.gameConfigs.gameLength}</span><br>
-      <span>Difficulty: {difficulty_str}, Shuffle: {gameInfo.gameConfigs.shuffle}</span>
+      <span>Round {$gameInfo.roundInfo.round} / {$gameInfo.gameConfigs.gameLength}</span><br>
+      <span>Difficulty: {difficulty_str}, Shuffle: {$gameInfo.gameConfigs.shuffle}</span>
    {/if}
    <table class = 'score-table'>
       <tr>
@@ -289,7 +291,7 @@
 /* mobile version*/
 #game-area{
   position:fixed;
-  bottom:0;
+  bottom:5%;
   text-align: center;
   width: auto;
   margin:5px;
@@ -311,21 +313,15 @@
  }
  
  .action-button-table{
-   able-layout: auto;
+   table-layout: auto;
   display: inline-block;
   vertical-align: text-top;
   width: 100%;
   text-align: center;
  }
 
- .action-button-table button {
-  margin: 2px; 
- }
-
- .action-button-table td{
-    width: 25%;
- }
-
+ .action-button-table button {margin: 2px; }
+ .action-button-table td{width: 25%;}
  .action-button-table img{
   width: 100%;
   height: auto
@@ -340,17 +336,18 @@
   border-radius: 5px;
 }
 
-.answered-players{
-   font-size: 10px;
-   word-wrap: break-word
-}
 .action-button:hover {
   opacity: 30%;
 }
 
+.answered-players{
+   font-size: 12px;
+   word-wrap: break-word
+}
+
 .start-game-button{
    font-size: 20px;
-   background-color: olive
+   background-color: lightskyblue
 }
 
 .timercontainer { 
@@ -395,13 +392,13 @@
 }
 
 /* desktop version*/
-@media only screen and (min-width: 1000px){
+@media only screen and (min-width: 720px){
 #game-area{
   text-align: center;
   position:fixed;
   top:0;
   left:0;
-  width: 70%;
+  width: 50%;
   margin: 10px;
   padding: 10px;
 }
@@ -411,7 +408,7 @@
   position:fixed;
   top:0;
   right:0;
-  width: 30%
+  width: 50%
 }
 
  #action-zone{

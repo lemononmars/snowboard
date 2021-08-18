@@ -24,8 +24,7 @@ const io = socketIo(server, {
   cors: {
     origin: PORT,
     methods: ["GET", "POST"],
-    transports: ["websocket", 'polling'],
-    credentials: true
+    transports: ["websocket", 'polling']
   }
 });
 socket(io)

@@ -1,11 +1,17 @@
 <script>
-   import { chosenTheme, difficulty, gameLength, shuffle } from './stores.js';
-/*    let chosenTheme_val, difficulty_val, gameLength_val, shuffle_val
-   $: chosenTheme.set(chosenTheme_val)
-   $: difficulty.set(difficulty_val)
-   $: gameLength.set(gameLength_val)
-   $: shuffle.set(shuffle_val) */
+   import {gameConfigs} from '../../stores/game.js';
    
+   const DEFAULT_THEME = $gameConfigs.loaded? $gameConfigs.chosenTheme: 'space' 
+   const DEFAULT_DIFFICULTY = 2
+   const DEFAULT_GAMELENGTH = 3
+
+   gameConfigs.set({
+      chosenTheme: DEFAULT_THEME,
+      shuffle: false,
+      difficulty: DEFAULT_DIFFICULTY,
+      gameLength: DEFAULT_GAMELENGTH
+   })
+
    let themes = [
       'flower','space','fruit','animal','suit','element','snow'
    ]
@@ -25,29 +31,23 @@
 </script>
 
 <form>
-   <select bind:value={$chosenTheme}>
+   <select bind:value={$gameConfigs.chosenTheme}>
       {#each themes as theme}
-         <option name="themes" value={theme}>
-            {theme}
-         </option>
+         <option name="themes" selected={{theme} === DEFAULT_THEME}>{theme}</option>
       {/each}
    </select>
    <label>
-      <input type="checkbox" bind:checked={$shuffle}>
+      <input type="checkbox" bind:checked={$gameConfigs.shuffle}>
       Shuffle
    </label>
-   <select bind:value={$difficulty}>
+   <select bind:value={$gameConfigs.difficulty}>
       {#each difficulties as diff}
-         <option value ={diff.value}>
-            {diff.text} 
-         </option>
+         <option value ={diff.value}>{diff.text} </option>
       {/each}
    </select>
-   <select bind:value={$gameLength}>
+   <select bind:value={$gameConfigs.gameLength}>
       {#each gameLengths as rl}
-         <option value = {rl.value}>
-            {rl.text}
-         </option>
+         <option value = {rl.value}>{rl.text}</option>
       {/each}
    </select>
 </form>
