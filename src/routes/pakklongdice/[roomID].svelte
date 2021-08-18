@@ -33,6 +33,8 @@
    $: action_text =['Edit name', 'Abort','Abort','Return to lobby'][$stateIndex]
    $: answerLists = updateActionList(actionList)
    $: scoreBoard = updateScoreboard($gameInfo.playerInfo)
+   var actionStatus = [0,0,0,0] // 0 = not chosen, 1 = chosen, 2 = correct
+   const actionButtonColors = ['grey', 'blue', 'green']
    var users = {}
 
    // TODO : put this in preload or afterupdate?
@@ -94,6 +96,7 @@
          return;
       
       chosenAnswer = ans
+      actionStatus[ans] = 1
       stateIndex.set(GAME_STATUS_WAITING) // wait
       socket.emit('submit action', {    // emit to game
          action: ans,
@@ -108,6 +111,7 @@
       $gameConfigs.chosenTheme = data.gameConfigs.chosenTheme // update theme in case another player changes it
       $gameInfo = data
       questionDice = []
+      actionStatus = [0,0,0,0]
       actionList = {}
       stateIndex.set(GAME_STATUS_WAITING)
    });
@@ -123,6 +127,7 @@
          // reveal dice and reset round score once countdown is completed
          questionDice = data.gameComponents.dice
          actionList = {}
+         actionStatus = [0,0,0,0]
          stateIndex.set(GAME_STATUS_PLAYING)
          setTimer(timer.roundTime, 'orangered')
       }, timer.coolDownTime * 1000)
@@ -135,6 +140,7 @@
    socket.on('end round', function(data){
       setTimer(0, 'aquamarine')
       $gameInfo = data
+      actionStatus[data.roundInfo.roundAnswer] = 2
       actionList = data.playerInfo.actions
    });
 
@@ -241,7 +247,7 @@
          <tr>
          {#each actionButtonImgUrl as url, i}
             <td>
-               <button class = 'action-button' value = {i} on:click={()=>submitAction(i)}>
+               <button class = 'action-button' style='background-color: {actionButtonColors[actionStatus[i]]}' value = {i} on:click={()=>submitAction(i)}>
                   <img src={url}  alt = 'action button'/>
                </button>
             </td>
