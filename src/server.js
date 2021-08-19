@@ -17,13 +17,15 @@ const app = polka({ server })
 		if (err) console.log('error', err);
 	});
 
-export default app
-module.exports = app
+//export default app
+//module.exports = app
 const io = socketIo(server, {
-  cors: {
-    origin: PORT,
-    methods: ["GET", "POST"],
-    transports: ['websocket', 'polling']
-  }
+	cors: {
+		origin: PORT,
+		methods: ["GET", "POST"],
+		transports: ['websocket', 'polling'],
+		credentials: true
+	},
+	allowEIO4: true
 });
 socket(io)

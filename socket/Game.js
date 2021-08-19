@@ -92,7 +92,7 @@ export default function (io) {
       this.roundInfo.round ++
       this.roundInfo.roundAnswer = answer
       var d = new Date()
-      this.roundInfo.roundStartTime = d.getTime()
+      this.roundInfo.roundStartTime = d.getTime() + 5000 // start after 5-second cooldown
       this.gameComponents.dice = dice
       this.playerInfo.actions = {} // clear actions each round because in this game you can only answer once
       this.timeOut = setTimeout(this.roundEnd.bind(this), 15000) // 5 seconds cool-down + 10 seconds gameplay
