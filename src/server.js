@@ -18,7 +18,7 @@ const app = polka({ server })
 	});
 
 //export default app
-//module.exports = app
+module.exports = app
 const io = socketIo(server, {
 	cors: {
 		origin: PORT,
