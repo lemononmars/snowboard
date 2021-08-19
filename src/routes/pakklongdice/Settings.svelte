@@ -1,7 +1,9 @@
 <script>
    import {gameConfigs} from '../../stores/game.js';
-   console.log($gameConfigs.loaded)
-   
+   import Select, { Option } from '@smui/select';
+   import FormField from '@smui/form-field';
+   import Checkbox from '@smui/checkbox';
+
    const DEFAULT_THEME = $gameConfigs.loaded? $gameConfigs.chosenTheme: 'space' 
    const DEFAULT_DIFFICULTY = 2
    const DEFAULT_GAMELENGTH = 3
@@ -32,23 +34,23 @@
 </script>
 
 <form>
-   <select bind:value={$gameConfigs.chosenTheme}>
+   <Select variant="outlined" bind:value={$gameConfigs.chosenTheme}>
       {#each themes as theme}
-         <option name="themes" selected={{theme} === DEFAULT_THEME}>{theme}</option>
+         <Option selected={{theme} === DEFAULT_THEME} value = {theme}>{theme}</Option>
       {/each}
-   </select>
-   <label>
-      <input type="checkbox" bind:checked={$gameConfigs.shuffle}>
-      Shuffle
-   </label>
-   <select bind:value={$gameConfigs.difficulty}>
+   </Select>
+   <FormField>
+      <Checkbox bind:checked={$gameConfigs.shuffle}/>
+      <span slot="label">Shuffle</span>
+   </FormField>
+   <Select variant="outlined" bind:value={$gameConfigs.difficulty}>
       {#each difficulties as diff}
-         <option value ={diff.value}>{diff.text} </option>
+         <Option value ={diff.value}>{diff.text} </Option>
       {/each}
-   </select>
-   <select bind:value={$gameConfigs.gameLength}>
+   </Select>
+   <Select variant="outlined" bind:value={$gameConfigs.gameLength}>
       {#each gameLengths as rl}
-         <option value = {rl.value}>{rl.text}</option>
+         <Option value = {rl.value}>{rl.text}</Option>
       {/each}
-   </select>
+   </Select>
 </form>

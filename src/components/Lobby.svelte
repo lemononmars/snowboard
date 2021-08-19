@@ -1,16 +1,22 @@
 <script>
    import {goto} from "@sapper/app";
-   import {onMount, afterUpdate} from 'svelte';
+   import {onMount} from 'svelte';
    import socket from '../stores/socket';
+   import LinearProgress from '@smui/linear-progress';
+   import Button, { Label } from '@smui/button';
+   import Card, {Content,Actions,} from '@smui/card';
+   
 
    export let title = ''
    export let slug = ''
 
    var rooms = []
+   var loaded = false;
    // grab room list first
    onMount(()=>{
       socket.emit('get rooms', slug, (data)=>{
          rooms = data
+         loaded = true;
       })
 
       socket.emit('join lobby', slug)
@@ -46,37 +52,35 @@
 </svelte:head>
 
 <div id = 'game-lobby'>
+   {#if !loaded}
+      <LinearProgress indeterminate />
+   {/if}
+
    This is the lobby for {title}. <br> 
-   <button class = 'create-button' on:click={createRoom}>
-      Create a new room
-   </button><br>
+   <Button variant="raised" class = 'create-button' on:click={createRoom}>
+      <Label>Create a new room</Label>
+   </Button><br>
    Or join an existing room<br>
    {#each rooms as [roomID, roomInfo]}
-      <div class = 'room-block'>
-         <div>Room #{roomID}</div>
-         {#each roomInfo.players as p}
-            <div>{p}</div>
-         {/each}
-      {#if roomInfo.public}
-      <button class = 'join-button' on:click={()=>joinRoom(roomID)}>
-         Join
-      </button>
-      {/if}
-      </div>
+      <div class="card-container">
+         <Card variant="outlined">
+           <Content>
+              Room #{roomID}
+              {#each roomInfo.players as p}
+                  <div>{p}</div>
+               {/each}
+            </Content>
+           <Actions fullBleed>
+             <Button on:click={()=>joinRoom(roomID)}>
+               <Label>Join</Label>
+               <i class="material-icons" aria-hidden="true">arrow_forward</i>
+             </Button>
+           </Actions>
+         </Card>
+       </div>
    {/each}
       
 </div>
 
 <style>
-.room-block{
-   font-size: 20px;
-   color: aquamarine;
-   border: 2px solid black;
-   padding: 2px
-}
-
-.join-button, .create-button{
-   background-color: greenyellow;
-   font-size:30px
-}
 </style>

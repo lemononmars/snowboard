@@ -1,4 +1,13 @@
 <script>
+   import {goto} from "@sapper/app";
+   import Button, { Label } from '@smui/button';
+   import Card, {
+    Content,
+    Actions,
+  } from '@smui/card';
+
+   let clicked = 0
+
    const games = [
       {
          title: 'Pakklong Dice',
@@ -17,6 +26,10 @@
          description: `Be the best bouquet maker! Grab flowers, upgrade your shop, and gain bonuses`
       }
    ]
+
+   function joinLobby(link){
+      goto(link)
+   }
 </script>
 
 <svelte:head>
@@ -27,25 +40,25 @@
    Welcome! Here is a collection of prototypes of board games I design. I make a digital version for easier playtesting during COVID-19 era.
 </div>
 {#each games as g}
-      <a href={g.link}>
-         <div class = 'game-info-block'>
-            <h2>{g.title}</h2>
-            <span>{g.numPlayers}  {g.time}</span>
-            <div>
-               {g.description}
-            </div>
+<div class="card-container">
+   <Card>
+      <Content>
+         <h2>{g.title}</h2>
+         <span>{g.numPlayers}  {g.time}</span>
+         <div>
+            {g.description}
          </div>
-      </a>
+      </Content>
+      <Actions fullBleed>
+         <Button on:click={()=>joinLobby(g.link)}>
+         <Label>Join lobby</Label>
+         <i class="material-icons" aria-hidden="true">arrow_forward</i>
+         </Button>
+      </Actions>
+   </Card>
+   </div>
 {/each}
 
 
 <style>
-a {text-decoration: none;}
-
-.game-info-block{
-   background-color: lightcyan;
-   border: 2px solid black;
-   border-radius: 3px;
-   padding: 3px
-}
 </style>

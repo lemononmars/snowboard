@@ -6,7 +6,9 @@
    import {gameInfo, gameConfigs, stateIndex} from '../../stores/game.js';
    import {selfInfo} from '../../stores/'
    import socket from '../../stores/socket';
-   // import Button from '@smui/button'; // doesn't work, sadly
+   import Button from '@smui/button';
+   import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
+   import Textfield from '@smui/textfield';
    
    // import all these just to get the ID
    import { stores } from "@sapper/app";
@@ -33,7 +35,7 @@
    $: action_text =['Edit name', 'Abort','Abort','Return to lobby'][$stateIndex]
    $: answerLists = updateActionList(actionList)
    $: scoreBoard = updateScoreboard($gameInfo.playerInfo)
-   var actionStatus = [0,0,0,0] // 0 = not chosen, 1 = chosen, 2 = correct
+   var actionStatus = new Array(4).fill(0) // 0 = not chosen, 1 = chosen, 2 = correct
    const actionButtonColors = ['grey', 'blue', 'green']
    var users = {}
 
@@ -111,7 +113,7 @@
       $gameConfigs.chosenTheme = data.gameConfigs.chosenTheme // update theme in case another player changes it
       $gameInfo = data
       questionDice = []
-      actionStatus = [0,0,0,0]
+      actionStatus = new Array(4).fill(0)
       actionList = {}
       stateIndex.set(GAME_STATUS_WAITING)
    });
@@ -127,7 +129,7 @@
          // reveal dice and reset round score once countdown is completed
          questionDice = data.gameComponents.dice
          actionList = {}
-         actionStatus = [0,0,0,0]
+         actionStatus = new Array(4).fill(0)
          stateIndex.set(GAME_STATUS_PLAYING)
          setTimer(timer.roundTime, 'orangered')
       }, timer.coolDownTime * 1000)
@@ -219,15 +221,15 @@
 
 <div id = 'game-area'>
    <div id = "user-info">
-      <input type="text" id="username" bind:value={$selfInfo.username}/>
-      <button on:click={gameStateButton}>{action_text}</button>
+      <Textfield bind:value={$selfInfo.username}/>
+      <Button variant="unelevated" color="secondary" on:click={gameStateButton}>{action_text}</Button>
    </div>
    {#if $stateIndex === 0 || $stateIndex === 3}
       <div class = button-container>
          <Settings/>
-         <button class = 'start-game-button' on:click={startGame}>
+         <Button variant="unelevated" class = 'start-game-button' on:click={startGame}>
             Start a new game!
-         </button>
+         </Button>
       </div>
    {/if}
 
@@ -277,20 +279,24 @@
       <span>Round {$gameInfo.roundInfo.round} / {$gameInfo.gameConfigs.gameLength}</span><br>
       <span>Difficulty: {difficulty_str}, Shuffle: {$gameInfo.gameConfigs.shuffle}</span>
    {/if}
-   <table class = 'score-table'>
-      <tr>
-         <th> Rank </th>
-         <th> Player </th>
-         <th> Score </th>
-      </tr>
+   <DataTable table$aria-label="User list" style="width: 100%;">
+      <Head>
+         <Row>
+            <Cell numeric> Rank </Cell>
+            <Cell style="width: 100%;"> Player </Cell>
+            <Cell numeric> Score </Cell>
+         </Row>
+      </Head>
+      <Body>
       {#each scoreBoard as row}
-         <tr>
-            <td> {row.rank} </td>
-            <td> {row.username} </td>
-            <td> {row.score} </td>
-         </tr>
+         <Row>
+            <Cell> {row.rank} </Cell>
+            <Cell> {row.username} </Cell>
+            <Cell> {row.score} </Cell>
+         </Row>
       {/each}
-   </table>
+      </Body>
+   </DataTable>
 </div>
 
 <style>
@@ -351,11 +357,6 @@
    word-wrap: break-word
 }
 
-.start-game-button{
-   font-size: 20px;
-   background-color: lightskyblue
-}
-
 .timercontainer { 
   text-align: center;
   display:block;
@@ -381,21 +382,6 @@
   text-align: center;
 }
 
-.score-table {
-  border-bottom: 1px solid #ddd;
-  text-align: center;
-  padding: 10px;
-  width: auto;
-  font-size: 15px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.score-table tr:hover {background-color: #f5f5f5;}
-.score-table th{
-  background-color: orange;
-  color: white;
-}
 
 /* desktop version*/
 @media only screen and (min-width: 720px){
@@ -471,21 +457,6 @@
   height:40px; 
   border-right:2px solid #222223; 
   border-color:white
-}
-
-.score-table {
-  border-bottom: 1px solid #ddd;
-  text-align: center;
-  padding: 10px;
-  width: 100%;
-  font-size: 20px;
-}
-
-.score-table tr:hover {background-color: #f5f5f5;}
-.score-table th{
-  background-color: orange;
-  color: white;
-}
 }
    
 .timercontainer { 
