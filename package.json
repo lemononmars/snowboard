@@ -1,10 +1,10 @@
 {
-  "name": "TODO",
-  "description": "TODO",
+  "name": "SNOWBOARD",
+  "description": "BOARDGAMEPROTOTYPE",
   "version": "0.0.1",
   "scripts": {
     "dev": "sapper dev",
-    "build": "sapper export",
+    "build": "sapper build",
     "export": "sapper export --legacy",
     "start": "node __sapper__/build"
   },

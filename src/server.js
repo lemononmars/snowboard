@@ -5,9 +5,15 @@ import polka from 'polka';
 import sirv from 'sirv';
 import socketIo from 'socket.io';
 import socket from '../socket';
+import debug from 'debug'
+
+debug('botting GAME')
 const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === 'development';
-const server = http.createServer();
+const server = http.createServer(function(req, res){
+	debug(req.method + ' ' + req.url);
+ });
+ 
 const app = polka({ server })
 	.use(
 		compression({ threshold: 0 }),
