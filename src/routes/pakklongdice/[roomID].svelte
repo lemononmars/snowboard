@@ -1,14 +1,17 @@
 <script>
+   import {goto} from '@sapper/app';
+
+   // game related imports
    import InfoArea from './InfoArea.svelte';
    import Settings from './Settings.svelte';
    import {onMount} from 'svelte';
-   import {goto} from '@sapper/app';
    import {gameInfo, gameConfigs, stateIndex} from '../../stores/game.js';
    import {selfInfo} from '../../stores/'
    import socket from '../../stores/socket';
-   import Button from '@smui/button';
+
+   // material UI imports
+   import Button, { Group, Label } from '@smui/button';
    import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
-   import Textfield from '@smui/textfield';
    
    // import all these just to get the ID
    import { stores } from "@sapper/app";
@@ -25,23 +28,21 @@
       socket.emit('join room', roomID, func=>{
          if (!func.successful)
             goto('/pakklongdice?error=noroomID') // redirect to lobby if room is unavaible
-         else
-            socket.data.roomID = roomID
+         else {
+            $selfInfo.roomID = roomID
+         }
       })
    })
 
    stateIndex.set(GAME_STATUS_PREGAME)
    $: actionButtonImgUrl = [0,1,2,3].map(x => `./pakklongdice/img/${$gameConfigs.chosenTheme}/${x+1}.png`)
-   $: action_text =['Edit name', 'Abort','Abort','Return to lobby'][$stateIndex]
    $: answerLists = updateActionList(actionList)
    $: scoreBoard = updateScoreboard($gameInfo.playerInfo)
    var actionStatus = new Array(4).fill(0) // 0 = not chosen, 1 = chosen, 2 = correct
    const actionButtonColors = ['grey', 'blue', 'green']
    var users = {}
 
-   // TODO : put this in preload or afterupdate?
-   //if(socket.data != null) {
-      users[$selfInfo.userID] = $selfInfo.username
+   users[$selfInfo.userID] = $selfInfo.username
    //}
 
    var questionDice
@@ -73,6 +74,7 @@
    }
 
    function startGame(){
+      actionStatus = new Array(4).fill(0)
       socket.emit('start game', $gameConfigs)
    }
    
@@ -84,7 +86,7 @@
    })
 
    socket.on('remove player', (data) => {
-      if (data.userID in playerInfo) {
+      if (data.userID in users) {
          delete $gameInfo.playerInfo.usernames[data.userID]
       }
    })
@@ -156,14 +158,25 @@
       helper functions
    */
 
-   function gameStateButton(){
-      switch($stateIndex){
-         case GAME_STATUS_PREGAME: socket.emit('edit name', $selfInfo.username); break;
-         case GAME_STATUS_PLAYING:
-         case GAME_STATUS_WAITING: socket.emit('abort'); clearInterval(timer.interval); break;
-         case GAME_STATUS_GAMEEND: goto('/pakklongdice'); break;
-         default: 
-      }
+   function abort(){
+      socket.emit('abort'); 
+      clearInterface()
+   }
+
+   function restart(){
+      $stateIndex = GAME_STATUS_PREGAME
+      clearInterface()
+   }
+
+   function returnToLobby(){
+      socket.emit('leave room', roomID); 
+      goto('/pakklongdice');
+   }
+
+   function clearInterface(){
+      actionStatus = new Array(4).fill(0)
+      actionList = []
+      clearInterval(timer.interval)
    }
 
    function updateScoreboard(pinfo){
@@ -220,16 +233,24 @@
 <svelte:window on:unload={emitUserDisconnect}/>
 
 <div id = 'game-area'>
-   <div id = "user-info">
-      <Textfield bind:value={$selfInfo.username}/>
-      <Button variant="unelevated" color="secondary" on:click={gameStateButton}>{action_text}</Button>
-   </div>
-   {#if $stateIndex === 0 || $stateIndex === 3}
+      <Group>
+         {#if $stateIndex === GAME_STATUS_PREGAME}
+            <Button on:click={() => startGame()}><Label>Start Game!</Label></Button>
+         {/if}
+         {#if $stateIndex === GAME_STATUS_GAMEEND}
+            <Button on:click={() => restart()}><Label>Restart</Label></Button>
+         {/if}
+         {#if $stateIndex === GAME_STATUS_WAITING || $stateIndex === GAME_STATUS_PLAYING}
+            <Button on:click={() => abort()}><Label>Abort</Label></Button>
+         {/if}
+         {#if $stateIndex === GAME_STATUS_PREGAME || $stateIndex == GAME_STATUS_GAMEEND}
+            <Button on:click={() => returnToLobby()}><Label>Return to lobby</Label></Button>
+         {/if}
+       </Group>
+
+   {#if $stateIndex === 0}
       <div class = button-container>
          <Settings/>
-         <Button variant="unelevated" class = 'start-game-button' on:click={startGame}>
-            Start a new game!
-         </Button>
       </div>
    {/if}
 
@@ -291,7 +312,7 @@
       {#each scoreBoard as row}
          <Row>
             <Cell> {row.rank} </Cell>
-            <Cell> {row.username} </Cell>
+            <Cell> {#if row.username === $selfInfo.username} (You) {/if} {row.username} </Cell>
             <Cell> {row.score} </Cell>
          </Row>
       {/each}

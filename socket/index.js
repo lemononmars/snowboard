@@ -3,7 +3,6 @@ import nameGen from './name';
 
 export default function (io) {
   var users = []
-  users['0000'] = 'Dummy user'
   const {RoomList} = RoomCreator(io)
   const rooms = new RoomList();
  
@@ -24,6 +23,7 @@ export default function (io) {
     // disconnect the user
     socket.on('disconnect', ()=>{
       delete users[socket.data.userID];
+      rooms.removePlayer(socket, socket.data.roomID)
       io.to(socket.data.roomID).emit('remove player', socket.data);
     });
   

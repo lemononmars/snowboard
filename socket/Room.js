@@ -13,7 +13,7 @@ export default function (io) {
       this.hostUserID = {};
       this.roomID = generateRoomID(); //random 4-capital-letter string
       this.status = ROOM_STATUS_PREGAME
-      this.game = {};
+      this.game = null;
       this.maxPlayers = 10;
     }
 
@@ -34,14 +34,18 @@ export default function (io) {
       delete socket.data.roomID
       socket.leave(this.roomID)
       io.to(this.roomID).emit('remove player', {userID:socket.userID, username:socket.username})
-      return Object.keys(this.players) == 0 // true if room is now empty
+      return Object.keys(this.players).length === 0 // true if room is now empty
     }
 
     attemptToStart(configs){
-      if(this.game.isPlaying)
-        return false
-
-      this.game = new Game(this.gameTitle, configs, this.players, this.roomID)
+      if(this.game === null)
+        this.game = new Game(this.gameTitle, configs, this.players, this.roomID)
+      else 
+        if(this.game.isPlaying)
+          return false
+        else
+          this.game.restart()
+      
       io.to(this.roomID).emit('new game', this.game.gameInfo())
       this.game.newRound()
       this.status = ROOM_STATUS_PLAYING
@@ -100,9 +104,8 @@ export default function (io) {
         )
       }
       const isEmpty = room.removePlayer(socket)
-
       if (isEmpty) {
-        this.removeRoom(room.id)
+        this.removeRoom(id)
       }
     }
 

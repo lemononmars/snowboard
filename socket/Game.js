@@ -33,6 +33,25 @@ export default function (io) {
       this.addListeners()
     }
 
+    restart(){
+      this.playerInfo = {
+        usernames: {},
+        scores: {},
+        actions: {}
+      }
+      for (const s in this.players){
+        var p = this.players[s]
+        this.playerInfo.usernames[p.data.userID] = p.data.username
+        this.playerInfo.scores[p.data.userID] = 0
+      }
+      this.gameComponents = {dice: []}
+      this.roundInfo = {
+        round: 0,
+        roundStartTime: 0,
+        roundAnswer: -1,
+      }
+    }
+
     removePlayer(socket){
       if(socket.data.userID in this.players) {
         delete this.players[socket.data.userID]
