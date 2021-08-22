@@ -29,6 +29,15 @@ code {
 	border-radius: 2px;
 }
 
+.main {
+   margin: auto;
+   display: flex;
+   flex-direction: column;
+   justify-content:center;
+   align-items: center;
+   width: clamp(300px, 50%, 800px);
+}
+
 @media (min-width: 400px) {
 	body {
 		font-size: 16px;

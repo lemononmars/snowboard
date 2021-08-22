@@ -4,13 +4,21 @@
    import FormField from '@smui/form-field';
    import Checkbox from '@smui/checkbox';
 
-   const DEFAULT_THEME = $gameConfigs.loaded? $gameConfigs.chosenTheme: 'space' 
-   const DEFAULT_DIFFICULTY = 2
-   const DEFAULT_GAMELENGTH = 3
+   let DEFAULT_THEME = 'space' 
+   let DEFAULT_DIFFICULTY = 2
+   let DEFAULT_GAMELENGTH = 3
+   let DEFAULT_SHUFFLE = false
+
+   if ($gameConfigs.loaded) {
+      DEFAULT_THEME = $gameConfigs.chosenTheme
+      DEFAULT_DIFFICULTY = $gameConfigs.difficulty
+      DEFAULT_GAMELENGTH = $gameConfigs.gameLength
+      DEFAULT_SHUFFLE = $gameConfigs.shuffle
+   }
 
    gameConfigs.set({
       chosenTheme: DEFAULT_THEME,
-      shuffle: false,
+      shuffle: DEFAULT_SHUFFLE,
       difficulty: DEFAULT_DIFFICULTY,
       gameLength: DEFAULT_GAMELENGTH
    })

@@ -2,6 +2,4 @@
 	<title>About</title>
 </svelte:head>
 
-<h1>About this site</h1>
-
-<p>This is the 'about' page. There's not much here.</p>
+<p>Here is a collection of prototypes of board games I design. I make a digital version for easier playtesting during COVID-19 era.</p>

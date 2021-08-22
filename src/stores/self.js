@@ -1,12 +1,14 @@
-import { writable } from 'svelte/store';
+import { persistStore } from './persistStore'
 import socket from './socket'
 
-export const selfInfo = writable({
+const defaultInfo = {
   userID: 1224,
   username: 'Yukiho',
   roomID: 'lobby'
-})
+}
 
-socket.on('self_info', newSelf => {
+export const selfInfo = persistStore('selfInfo', defaultInfo)
+
+socket.on('initialize user', newSelf => {
   selfInfo.set(newSelf)
 })

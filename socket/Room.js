@@ -44,7 +44,7 @@ export default function (io) {
         if(this.game.isPlaying)
           return false
         else
-          this.game.restart()
+          this.game.restart(configs)
       
       io.to(this.roomID).emit('new game', this.game.gameInfo())
       this.game.newRound()

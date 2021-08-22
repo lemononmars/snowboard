@@ -12,13 +12,19 @@ export default function (io) {
     socket.data.userID = socket.id
     socket.data.roomID = 'lobby'
     users[socket.data.userID] = socket.data.username
-    console.log(socket.data.userID + ' joined')
+    
     socket.emit('initialize user', socket.data)
 
-    // for debuging 
+/*     // for debuging 
+    console.log(socket.data.userID + ' joined')
+
     socket.onAny((event, ...args) => {
       console.log(event, args);
-    });
+    }); */
+    socket.on('use local storage', (data) =>{
+      // maybe there's a better way?
+      socket.data = data
+    })
   
     // disconnect the user
     socket.on('disconnect', ()=>{

@@ -5,15 +5,16 @@
    import InfoArea from './InfoArea.svelte';
    import Settings from './Settings.svelte';
    import {onMount} from 'svelte';
-   import {gameInfo, gameConfigs, stateIndex} from '../../stores/game.js';
-   import {selfInfo} from '../../stores/'
+   import {gameInfo, gameConfigs, stateIndex} from '../../stores/game';
+   import {selfInfo} from '../../stores/self'
    import socket from '../../stores/socket';
 
    // material UI imports
    import Button, { Group, Label } from '@smui/button';
    import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
+   // import LinearProgress from '@smui/linear-progress'; // to replace time container
    
-   // import all these just to get the ID
+   // import all these just to get the ID...
    import { stores } from "@sapper/app";
    const { page } = stores();
    const { params } = $page;
@@ -23,8 +24,11 @@
    const GAME_STATUS_WAITING = 1
    const GAME_STATUS_PLAYING = 2
    const GAME_STATUS_GAMEEND = 3
+   var users = {}
 
    onMount(() =>{
+      selfInfo.useLocalStorage()
+      users[$selfInfo.userID] = $selfInfo.username
       socket.emit('join room', roomID, func=>{
          if (!func.successful)
             goto('/pakklongdice?error=noroomID') // redirect to lobby if room is unavaible
@@ -40,10 +44,6 @@
    $: scoreBoard = updateScoreboard($gameInfo.playerInfo)
    var actionStatus = new Array(4).fill(0) // 0 = not chosen, 1 = chosen, 2 = correct
    const actionButtonColors = ['grey', 'blue', 'green']
-   var users = {}
-
-   users[$selfInfo.userID] = $selfInfo.username
-   //}
 
    var questionDice
    gameInfo.set({
@@ -335,6 +335,8 @@
   position:fixed;
   top:0;
   width: 100%;
+  height: 10%;
+  overflow: auto;
 }
  
  #action-zone{

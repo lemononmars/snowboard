@@ -9,6 +9,7 @@
 			case 'Dice': goto('/pakklongdice'); break;
 			case 'Card': goto('/pakklongcard'); break;
 			case 'About': goto('/about'); break;
+			case 'Settings': goto('/settings'); break;
 			default:;
 		 }
 	  }
@@ -16,7 +17,7 @@
  
 <nav>
 	<div>
-		<TabBar tabs={['Home', 'Dice', 'Card', 'About']} let:tab>
+		<TabBar tabs={['Home', 'Dice', 'Card', 'About', 'Settings']} let:tab>
 		  <Tab {tab} minWidth on:click={()=>changeTab(tab)}>
 			 <Label>{tab}</Label>
 		  </Tab>

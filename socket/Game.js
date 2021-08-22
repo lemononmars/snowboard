@@ -33,7 +33,8 @@ export default function (io) {
       this.addListeners()
     }
 
-    restart(){
+    restart(configs){
+      this.gameConfigs = configs
       this.playerInfo = {
         usernames: {},
         scores: {},
@@ -192,7 +193,7 @@ export default function (io) {
         roundInfo: this.roundInfo
       }
     }
-    // special function just for Pakklong Talat - The Dice Game
+    
     get_answer(f){
       var a = -1
       if (f[0] == f[1])

@@ -42,7 +42,6 @@
    }
 
    socket.on('update rooms', (data)=>{
-      console.log(data)
       rooms = data
    })
 </script>
@@ -51,16 +50,20 @@
    <title>{title}</title>
 </svelte:head>
 
-<div id = 'game-lobby'>
+<div class = 'main'>
+   <h1>{title}</h1>
+   <Button variant="raised" class = 'create-button' on:click={createRoom}>
+      <Label>Create a new room</Label>
+   </Button>
    {#if !loaded}
       <LinearProgress indeterminate />
    {/if}
+   {#if rooms.length == 0}
+      <h2>No active room now...</h2>
+   {:else}
+      <h2>or join an existing room</h2>
+   {/if}
 
-   This is the lobby for {title}. <br> 
-   <Button variant="raised" class = 'create-button' on:click={createRoom}>
-      <Label>Create a new room</Label>
-   </Button><br>
-   Or join an existing room<br>
    {#each rooms as [roomID, roomInfo]}
       <div class="card-container">
          <Card variant="outlined">
@@ -81,6 +84,3 @@
    {/each}
       
 </div>
-
-<style>
-</style>
