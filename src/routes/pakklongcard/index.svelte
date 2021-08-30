@@ -1,11 +1,11 @@
 <script>
    import Lobby from '../../components/Lobby.svelte'
    const gameInfo = {
-      title: 'Pakklong Talat - The Board Game',
-      slug: 'pakklongboard'
+      title: 'Pakklong Talat - the Dice Game',
+      slug: 'pakklongdice'
    }
 </script>
 
-<div>
-   Coming soon....
-</div>
+<h1> Coming soon.....</h1>
+<!-- Lobby {...gameInfo}/-->
+

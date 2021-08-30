@@ -6,7 +6,6 @@
    import Button, { Label } from '@smui/button';
    import Card, {Content,Actions,} from '@smui/card';
    
-
    export let title = ''
    export let slug = ''
 
@@ -84,3 +83,9 @@
    {/each}
       
 </div>
+
+<style>
+   .card-container{
+      width: 100%
+   }
+</style>

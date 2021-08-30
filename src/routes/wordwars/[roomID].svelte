@@ -2,8 +2,6 @@
    import {goto} from '@sapper/app';
 
    // game related imports
-   import InfoArea from './InfoArea.svelte';
-   import Settings from './Settings.svelte';
    import {onMount} from 'svelte';
    import {gameInfo, gameConfigs, stateIndex} from '../../stores/game';
    import {selfInfo} from '../../stores/self'
@@ -12,7 +10,7 @@
    // material UI imports
    import Button, { Group, Label } from '@smui/button';
    import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
-   // import LinearProgress from '@smui/linear-progress'; // to replace time container
+   import LinearProgress from '@smui/linear-progress'; // to replace time container
    
    // import all these just to get the ID...
    import { stores } from "@sapper/app";

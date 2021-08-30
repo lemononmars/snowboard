@@ -34,31 +34,46 @@
       // {Value: 4, text: 'Chaos (4 colors, 12 dice)'}
    ]
    let gameLengths = [
-      {value: 1, text: 'One-shot (1 round)'},
+      {value: 1, text: 'Practice (1 round)'},
       {value: 3, text: 'Warm-up (3 rounds)'},
       {value: 10, text: 'Full game! (10 rounds)'}
    ]
 
 </script>
 
-<form>
-   <Select variant="outlined" bind:value={$gameConfigs.chosenTheme}>
-      {#each themes as theme}
-         <Option selected={{theme} === DEFAULT_THEME} value = {theme}>{theme}</Option>
-      {/each}
-   </Select>
-   <FormField>
-      <Checkbox bind:checked={$gameConfigs.shuffle}/>
-      <span slot="label">Shuffle</span>
-   </FormField>
-   <Select variant="outlined" bind:value={$gameConfigs.difficulty}>
-      {#each difficulties as diff}
-         <Option value ={diff.value}>{diff.text} </Option>
-      {/each}
-   </Select>
-   <Select variant="outlined" bind:value={$gameConfigs.gameLength}>
-      {#each gameLengths as rl}
-         <Option value = {rl.value}>{rl.text}</Option>
-      {/each}
-   </Select>
+<form style='display: flex; flex-flow: row wrap'>
+   <div class='select-field'>
+      <Select variant="outlined" bind:value={$gameConfigs.chosenTheme} label="Theme">
+         {#each themes as theme}
+            <Option selected={{theme} === DEFAULT_THEME} value = {theme}>{theme}</Option>
+         {/each}
+      </Select>
+   </div>
+   <div class='select-field'>
+      <Select variant="outlined" bind:value={$gameConfigs.difficulty} label="Dificulty">
+         {#each difficulties as diff}
+            <Option value ={diff.value}>{diff.text} </Option>
+         {/each}
+      </Select>
+   </div>
+   <div class='select-field'>
+      <Select variant="outlined" bind:value={$gameConfigs.gameLength} label="Rounds">
+         {#each gameLengths as rl}
+            <Option value = {rl.value}>{rl.text}</Option>
+         {/each}
+      </Select>
+   </div>
+   <div class='select-field'>
+      <FormField>
+         <Checkbox bind:checked={$gameConfigs.shuffle}/>
+         <span slot="label">Shuffle</span>
+      </FormField>
+   </div>
 </form>
+
+<style>
+   .select-field{
+      width:40%;
+      margin: 3%
+   }
+</style>

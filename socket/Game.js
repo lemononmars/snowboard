@@ -1,16 +1,76 @@
 export default function (io) {
   // TODO: add subclasses for different games
-  return class Game{
+  class Game{
     constructor(gameTitle, gameConfigs, players, roomID){
       this.gameConfigs = gameConfigs // shuffle, chosenTheme, gameLength, etc.
       this.gameTitle = gameTitle
-      this.players = players // players[socket.userID] = socket
+      this.players = players // players[socket.data.userID] = socket
       this.roomID = roomID
-      this.maxPlayers = 10
-      this.activePlayer = 0
-      this.timeOut = 0 // in case it's a timed game
       this.gameConfigs['solo'] = Object.keys(this.players).length == 1 // add a new config
       this.isPlaying = true;
+
+      this.addListeners()
+    }
+
+    removePlayer(socket){
+      if(socket.data.userID in this.players) {
+        delete this.players[socket.data.userID]
+        this.removeListeners()
+      }
+      // TODO: add consequences?
+    }
+
+    
+    gameInfo(){
+      return{
+        gameConfigs: this.gameConfigs,
+        gameTitle: this.gameTitle,
+        activePlayer: this.activePlayer,
+        playerInfo: this.playerInfo,
+        gameComponents: this.gameComponents,
+        roundInfo: this.roundInfo
+      }
+    }
+
+    // add listeners to those in the game
+    addListeners(){
+      for (const p in this.players) {
+        const v = this.players[p]
+        v.on('submit action', action => this.submitAction(v.data.userID, action))
+        v.on('abort', () => this.abort())
+      }
+    }
+
+    removeListeners(){
+      for (const p in this.players) {
+        const v = this.players[p]
+        v.removeAllListeners('submit action')
+        v.removeAllListeners('abort')
+      }
+    }
+
+    abort(){
+      this.roundInfo.round = this.gameConfigs.roundLength // maybe there's a better way..... like state
+      io.to(this.roomID).emit('end round', this.gameInfo())
+      this.gameEnd()
+    }
+
+    shuffleArray(array) {
+      for (var i = array.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var temp = array[i];
+          array[i] = array[j];
+          array[j] = temp;
+      }
+    }
+  }
+
+  class GameDice extends Game{
+    constructor(gameTitle, gameConfigs, players, roomID){
+      super(gameTitle, gameConfigs, players, roomID)
+
+      this.maxPlayers = 10
+      this.timeOut = 0
 
       // initialize playerInfo dictionary
       this.playerInfo = {
@@ -29,8 +89,6 @@ export default function (io) {
         roundStartTime: 0,
         roundAnswer: -1,
       }
-
-      this.addListeners()
     }
 
     restart(configs){
@@ -52,15 +110,7 @@ export default function (io) {
         roundAnswer: -1,
       }
     }
-
-    removePlayer(socket){
-      if(socket.data.userID in this.players) {
-        delete this.players[socket.data.userID]
-        this.removeListeners()
-      }
-      // TODO: add consequences?
-    }
-
+    
     newRound(){
       var dice_pool=[
           [0,1,2], [0,1,3], [0,2,3], [1,2,3]
@@ -122,15 +172,12 @@ export default function (io) {
     roundEnd(){
       clearTimeout(this.timeOut)
       this.computeScore()
-      
-      if (this.roundInfo.round == this.gameConfigs.gameLength) {
-        io.to(this.roomID).emit('end round', this.gameInfo());
+      io.to(this.roomID).emit('end round', this.gameInfo());
+
+      if (this.roundInfo.round == this.gameConfigs.gameLength)  
         this.gameEnd()
-      }
-      else {
-        io.to(this.roomID).emit('end round', this.gameInfo());
+      else
         this.newRound()
-      }
     }
     
     gameEnd(){
@@ -161,7 +208,7 @@ export default function (io) {
         }
       }
     
-      // reward faster player
+      // find out who answers correctly first and award points according to submission time
       if(correctPlayers.length > 0){
         correctPlayers.sort(function(first, second){
           return first[1] - second[1]
@@ -176,24 +223,14 @@ export default function (io) {
         for (const cp in correctPlayers){
           // faster one gets 100 points
           // 1 point of for each 0.1 seconds behind the fastest
-          var bonus = 100 + Math.floor((fastest_time - correctPlayers[cp][1])/100);
+          const maxScore = this.gameConfigs.solo? 150:100
+          var bonus = maxScore + Math.floor((fastest_time - correctPlayers[cp][1])/100);
           this.playerInfo.scores[correctPlayers[cp][0]] += bonus
           this.playerInfo.actions[correctPlayers[cp][0]].roundScore = bonus
         }
       }
     }
-    
-    gameInfo(){
-      return{
-        gameConfigs: this.gameConfigs,
-        gameTitle: this.gameTitle,
-        activePlayer: this.activePlayer,
-        playerInfo: this.playerInfo,
-        gameComponents: this.gameComponents,
-        roundInfo: this.roundInfo
-      }
-    }
-    
+
     get_answer(f){
       var a = -1
       if (f[0] == f[1])
@@ -209,32 +246,6 @@ export default function (io) {
             a = 6-f[0]-f[1]-f[2]
       return a
     }
-    
-    shuffleArray(array) {
-        for (var i = array.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
-    }
-
-    // add listeners to those in the game
-    addListeners(){
-      for (const p in this.players) {
-        const v = this.players[p]
-        v.on('submit action', action => this.submitAction(v.data.userID, action))
-        v.on('abort', () => this.abort())
-      }
-    }
-
-    removeListeners(){
-      for (const p in this.players) {
-        const v = this.players[p]
-        v.removeAllListeners('submit action')
-        v.removeAllListeners('abort')
-      }
-    }
 
     submitAction(id, action){
       this.playerInfo.actions[id] = action
@@ -244,11 +255,37 @@ export default function (io) {
       if (Object.keys(this.playerInfo.usernames).length == Object.keys(this.playerInfo.actions).length)
         this.roundEnd()
     }
+  }
 
-    abort(){
-      this.roundInfo.round = this.gameConfigs.roundLength // maybe there's a better way..... like state
-      io.to(this.roomID).emit('end round', this.gameInfo())
-      this.gameEnd()
+  class GameSpaceSpy extends Game{
+
+  }
+
+  class GameWordWar extends Game{
+    constructor() {
+
+    }
+
+    getLetter(){
+      const letters = ['า','ร','น','ก','อ','เ','ง','ม','ย','ว','ท','ด','ล','ต','ห','ส','บ','ะ','ค','ป','จ','แ','ไ','พ','ข','ใ','ช','โ','ธ','ผ','ศ','ถ','ณ','ซ','ษ','ญ','ภ','ฐฑฒ','ฟฝ','ฉฌฆ','ฤฦ','ฎฏ','ฮฬ','่','้','ั','ิ','ี','ุ','ื','์','ู','็','ำ','ึ','๊','๋๋'
+      ]
+      const frequencies = [3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+      ]
+      const scores = [1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,1,1,1,1,1,2,2,2,2,2,3,3,3,3
+      ]
+      const rarities = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,1,1,1,1,1,2,2,2,2,2,3,3,3,3
+      ]
+      const types = ['V','A','A','A','AV','V','A','A','A','AV','A','A','A','A','A','A','A','V','A','A','A','V','V','A','A','V','A','V','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','T','T','V','V','V','V','V','S','V','S','V','V','T','T'
+      ]
+
+      const letterTile = letters.map((x,i) => {return{
+        letter: letters[i],
+        freq: frequencies[i],
+        rarity: rarities[i],
+        score: scores[i],
+        type: types[i]
+      }})
     }
   }
+  return {GameDice, GameSpaceSpy, GameWordWar}
 }

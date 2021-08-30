@@ -4,7 +4,7 @@ const ROOM_STATUS_PLAYING = 1
 const ROOM_STATUS_POSTGAME = 2
 
 export default function (io) {
-  const Game = gameCreator(io)
+  const {GameDice, GameSpaceSpy} = gameCreator(io)
   class Room {
     constructor(gameTitle) {
       this.gameTitle = gameTitle;
@@ -38,8 +38,13 @@ export default function (io) {
     }
 
     attemptToStart(configs){
-      if(this.game === null)
-        this.game = new Game(this.gameTitle, configs, this.players, this.roomID)
+      if(this.game === null) {
+        switch(this.gameTitle) {
+          case 'pakklongdice': this.game = new GameDice(this.gameTitle, configs, this.players, this.roomID); break;
+          case 'spacespy': this.game = new GameSpaceSpy(this.gameTitle, configs, this.players, this.roomID); break;
+          default: break;
+        }
+      }
       else 
         if(this.game.isPlaying)
           return false

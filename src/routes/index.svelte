@@ -22,6 +22,24 @@
          time: '45-60',
          mechanics: ['Bidding', 'Simultaneous action selection', 'Set collection', 'Engine building'],
          description: `Be the best bouquet maker! Grab flowers, upgrade your shop, and gain bonuses`
+      },
+      {
+         title: 'Space Spy',
+         icon: 'spacespy_icon.jpg',
+         link: './spacespy',
+         numPlayers: '5-10',
+         time: '20-30',
+         mechanics: ['Hidden role', 'Traitor', 'Set collection'],
+         description: `Complete missions as astronauts, but beware the uncovered spies!`
+      },
+      {
+         title: 'Word Wars',
+         icon: 'wordwar_icon.jpg',
+         link: './wordwars',
+         numPlayers: '2-8',
+         time: '10-30',
+         mechanics: ['Word', 'Speed', 'Set collection'],
+         description: `Can you find the best word?`
       }
    ]
 

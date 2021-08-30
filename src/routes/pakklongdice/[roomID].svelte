@@ -230,7 +230,7 @@
    <title>Flower Dice Puzzle</title>
 </svelte:head>
 
-<svelte:window on:unload={emitUserDisconnect}/>
+<svelte:window on:unload={emitUserDisconnect}/> <!--TODO: let user reconnect-->
 
 <div id = 'game-area'>
       <Group>
@@ -265,6 +265,7 @@
    <br/>
    {/if}
 
+   {#if window}
    <div id = "action-zone">
       <table class = 'action-button-table'>
          <tr>
@@ -288,6 +289,7 @@
          {/each}
          </tr>
    </div>
+   {/if}
 
    {#if $stateIndex != GAME_STATUS_PREGAME}
       <InfoArea {questionDice}/>
