@@ -9,7 +9,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "dev:board-server": "node server-p.cjs",
     "build": "vite build",
     "preview": "vite preview"
   },
