@@ -4,7 +4,7 @@ const ROOM_STATUS_PLAYING = 1
 const ROOM_STATUS_POSTGAME = 2
 
 export default function (io) {
-  const {GameDice, GameSpaceSpy} = gameCreator(io)
+  const {GameDice, GameSpaceSpy, GameWordWar, GamePakklongCard, GamePakklongBoard} = gameCreator(io)
   class Room {
     constructor(gameTitle) {
       this.gameTitle = gameTitle;
@@ -42,6 +42,9 @@ export default function (io) {
         switch(this.gameTitle) {
           case 'pakklongdice': this.game = new GameDice(this.gameTitle, configs, this.players, this.roomID); break;
           case 'spacespy': this.game = new GameSpaceSpy(this.gameTitle, configs, this.players, this.roomID); break;
+          case 'pakklongcard': this.game = new GamePakklongCard(this.gameTitle, configs, this.players, this.roomID); break;
+          case 'pakklongboard': this.game = new GamePakklongBoard(this.gameTitle, configs, this.players, this.roomID); break;
+          case 'wordwars': this.game = new GameWordWar(this.gameTitle, configs, this.players, this.roomID); break;
           default: break;
         }
       }

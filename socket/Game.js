@@ -261,6 +261,14 @@ export default function (io) {
 
   }
 
+  class GamePakklongCard extends Game{
+
+  }
+
+  class GamePakklongBoard extends Game{
+
+  }
+
   class GameWordWar extends Game{
     constructor() {
 
@@ -287,5 +295,5 @@ export default function (io) {
       }})
     }
   }
-  return {GameDice, GameSpaceSpy, GameWordWar}
+  return {GameDice, GameSpaceSpy, GameWordWar, GamePakklongCard, GamePakklongBoard}
 }
