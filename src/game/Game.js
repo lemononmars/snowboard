@@ -195,7 +195,7 @@ export default function (io) {
       // i.e. still the faster, the better!
       var correctPlayers = []
       var penalty = 0;
-      for (const id in this.playerInfo.usernames){
+      for (const id of Object.keys(this.playerInfo.usernames)){
         // see if that player took an action
         if(id in answers){
           if (answers[id].action === correctAnswer)
