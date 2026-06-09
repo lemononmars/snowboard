@@ -1,5 +1,5 @@
 <script>
-   import {goto} from "@sapper/app";
+   import { goto } from '$app/navigation';
    import {onMount} from 'svelte';
    import socket from '../stores/socket';
    import LinearProgress from '@smui/linear-progress';
