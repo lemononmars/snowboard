@@ -1,0 +1,230 @@
+<html>
+	<head>
+		<title> Pakklong Talat </title>
+		<link rel="stylesheet" href="style.css">
+		<link rel="icon" href = "img/title_icon.png">
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+		<script src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+		<script src="https://code.jquery.com/ui/1.8.21/jquery-ui.min.js"></script>
+		<script src="js/jquery.ui.touch-punch.min.js"></script>
+	</head>
+	<body>
+		<div class="main_content">
+			<div class="pages">
+				<div id = "login_page">
+					<table class="login_page_table">
+						<tbody>
+							<tr>
+								<td>
+									<header>
+										<h1> Pakklong Talat Beta 0.1 </h1>
+									</header>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table class="login_form">
+										<tbody>
+											<tr>
+												<td class="username">
+													Username: 
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<input type="text" id="input_username" value="First"><button id ="enterlobby" onClick="enterLobby()"> Log in </button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<br>
+									<br>
+									<a href="https://docs.google.com/document/d/1dQ1mH9Ry-FS9j9AFXasD_7qkcrT0Qf7DXJvNI4rI4K4/" target="_blank" >
+									Rulebook (Thai)
+									</a>
+									<br>
+									<a>How to play video</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>   
+				<div id ="lobby_page">
+					<div id = "menu_bar" hidden>
+						<input type = "button" id = "create_room" value = "Create Game"/>
+						<input type = "button" id = "log_out" value = "Log Out" style ="float:right"/>
+						<span id="username" style = "margin-left: 20px; color:white; float:right"></span>
+					</div>
+					<div id = "gamelist_lobby" hidden>
+						<div id = "open_rooms"></div>
+							<ul class = 'rooms'></ul>
+						<div id = "online_users">
+							<p style ="text-align:center"> =Online Users= </p>
+							<ul></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id = "chat_box" class="chat_box" hidden>
+				<div id = "chat_messages" class = "chat_messages">
+					<ul></ul>
+				</div>
+				<div id = "chat_input_area" class="chat_input_area">
+					<form action="javascript:void(0)" class="chat_form">
+						<input id = "chat_input" class = "chat_input" autocomplete = "off"/> 
+						<button class = "chat_input_button" onClick = "">Send</button>
+					</form>
+				</div>
+				<div id = 'chat_right' class = "chat_right">
+					<button class = "chat_toggle_button">hide chat</button>
+					<button class = "chat_toggle_button" hidden> show chat</button>
+				</div>
+			</div>
+
+			<div id = "gamelog_window" hidden>
+				Game log :
+				<button class = "gamelog_button"> Expand </button>
+				<button class = "gamelog_button" hidden> Collapse </button>
+				<div id = "gamelog"></div>
+			</div>
+		</div>
+
+		<div id = "game_board" hidden>
+			<div id = "opponent_board_area"></div>
+			<div id = "game_info">
+				<div id = "status_bar"></div>
+				<div id = "tie_break_track"></div>
+			</div>
+			<hr>
+			<div id = "main_board">
+				<table class = "main_board_table">
+					<tbody>
+						<tr id = "goods">
+							<td id = "goods1" class = "goods" lenght = '15%'></td>
+							<td id = "goods2" class = "goods" lenght = '15%'></td>
+							<td id = "goods3" class = "goods" lenght = '15%'></td>
+							<td id = "goods4" class = "goods" lenght = '15%'></td>
+							<td id = "goods5" class = "goods" lenght = '15%'></td>
+							<td id = "goods6" class = "goods" lenght = '15%'></td>
+						</tr>
+						<tr id = "shops">
+							<td id = "shop1" class = "shop">
+								<img src = "img/shop1.jpg" class = "shop_image"></img>
+							</td>
+							<td id = "shop2" class = "shop">
+								<img src = "img/shop2.jpg" class = "shop_image"></img>
+							</td>
+							<td id = "shop3" class = "shop">
+								<img src = "img/shop3.jpg" class = "shop_image"></img>
+							</td>
+							<td id = "shop4" class = "shop">
+								<img src = "img/shop4.jpg" class = "shop_image"></img>
+							</td>
+							<td id = "shop5" class = "shop">
+								<img src = "img/shop5.jpg" class = "shop_image"></img>
+							</td>
+							<td id = "shop6" class = "shop">
+								<img src = "img/shop6.jpg" class = "shop_image"></img>
+							</td>
+						</tr>
+						<tr id = "time_token_area">
+							<td id = "timetokenarea1" class = "time_token_area"></td>
+							<td id = "timetokenarea2" class = "time_token_area"></td>
+							<td id = "timetokenarea3" class = "time_token_area"></td>
+							<td id = "timetokenarea4" class = "time_token_area"></td>
+							<td id = "timetokenarea5" class = "time_token_area"></td>
+							<td id = "timetokenarea6" class = "time_token_area"></td>
+						</tr>
+					</tbody>
+				</table>
+				<div id = "tool_lookup"></div>
+			</div>
+			<div id = "my_area">
+				<div id = "my_board_area">
+					<div id = "my_board" class = "player_board">
+						<div id = "my_left_board">
+							<table class = "my_left_board_table">
+								<tbody>
+									<tr>
+										<td id = "my_name" colspan = "6">
+											<span class = "player_name"></span>
+										</td>
+									</tr>
+									<tr>
+										<td id = "my_money" colspan = "3">
+											<img src = "img/money_icon.png" title = "money" class = "icon"></img>
+											<span class = "player_money"></span>
+										</td>
+										<td id = "my_score" colspan = "3">
+											<img src = "img/score_icon.png" title = "score" class = "icon"></img>
+											<span class = "player_score"></span>
+										</td>
+									</tr>
+									<tr>
+										<td id = "my_ribbon" colspan = "3">
+											<img src = "img/ribbon_icon.png" title = "ribbon" class = "icon"></img>
+											<span class = "player_ribbon"></span>
+										</td>
+										<td id = "my_action_cube" colspan = "3">
+											<img src = "img/action_cube_icon.png" title = "action cube" class = "icon"></img>
+											<span class = "player_action_cube"></span>
+										</td>
+									</tr>
+									<tr class = "player_bonus_icon">
+										<td id = "bonus_icon1" colspan = "2"></td>
+										<td id = "bonus_icon2" colspan = "2"></td>
+										<td id = "bonus_icon3" colspan = "2"></td>
+									</tr>
+									<tr class = "player_bonus">
+										<td id = "my_bonus1" colspan = "2"></td>
+										<td id = "my_bonus2" colspan = "2"></td>
+										<td id = "my_bonus3" colspan = "2"></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id = "my_right_board">
+							<table class = "my_right_board_table">
+								<tbody>
+									<tr>
+										<td id = "my_time_track" class = "player_time_track"></td>
+										<td id = "my_number_played_cards">
+											<img src = "img/played_cards_icon.png" title = "number of played cards" class = "icon"></img>
+											<span class = "player_number_played_cards">15</span>
+										</td>
+									</tr>
+									<tr>
+										<td id = "my_hand" class = "player_hand" colspan="2"></td>
+									</tr>
+									<tr>
+										<td id = "my_vase" class = "player_vase" colspan="2"></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div id = "button_area"></div>
+				<div id = "achievement_area"></div>
+				<div id = "achievement_area--large"></div>
+				<div id = "notification"></div>
+			</div>
+		</div>
+
+	
+<script src ="js/bot.js"></script>
+<script src ="js/data.js"></script>
+<script src ="js/game_client.js"></script>
+<script src ="js/game_component.js"></script>
+<script src ="js/game.js"></script>
+<script src ="js/lobby_client.js"></script>
+<script src ="js/player_action.js"></script>
+<script src ="js/player.js"></script>
+<script src ="js/setup.js"></script>
+</html>
