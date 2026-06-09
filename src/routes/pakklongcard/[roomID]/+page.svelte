@@ -335,7 +335,7 @@
 #score-area{
   text-align: center;
   position:fixed;
-  top:0;
+  top: 64px;
   width: 100%;
   height: 10%;
   overflow: auto;
@@ -413,7 +413,7 @@
 #game-area{
   text-align: center;
   position:fixed;
-  top:0;
+  top: 64px;
   left:0;
   width: 50%;
   margin: 10px;
@@ -423,7 +423,7 @@
 #score-area{
   text-align: center;
   position:fixed;
-  top:0;
+  top: 64px;
   right:0;
   width: 50%
 }

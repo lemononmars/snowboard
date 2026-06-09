@@ -249,7 +249,7 @@
 #game-area{
   text-align: center;
   position:fixed;
-  top:0;
+  top: 64px;
   left:0;
   width: 50%;
   margin: 10px;
