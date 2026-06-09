@@ -220,7 +220,7 @@ export default function (io) {
           fastest_time = this.roundInfo.roundStartTime
         else
           fastest_time = correctPlayers[0][1]
-        for (const cp in correctPlayers){
+        for (let cp = 0; cp < correctPlayers.length; cp++){
           // faster one gets 100 points
           // 1 point of for each 0.1 seconds behind the fastest
           const maxScore = this.gameConfigs.solo? 150:100
