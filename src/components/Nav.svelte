@@ -1,6 +1,6 @@
 <script>
 	import TopAppBar, { Row, Section, Title } from '@smui/top-app-bar';
-	import {goto} from '@sapper/app';
+	import { goto } from '$app/navigation';
 	import IconButton from '@smui/icon-button';
 	export let pageTitle =''
   
