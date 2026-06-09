@@ -181,7 +181,7 @@
 
    function updateScoreboard(pinfo){
       var items = []
-      for (var id in pinfo.usernames)
+      for (const id of Object.keys(pinfo.usernames))
          items.push([0, pinfo.usernames[id], pinfo.scores[id]])
 
       items.sort(function(first, second){
