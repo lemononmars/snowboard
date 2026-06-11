@@ -181,8 +181,8 @@
 
    function updateScoreboard(pinfo){
       var items = []
-      for (const id of Object.keys(pinfo.usernames))
-         items.push([0, pinfo.usernames[id], pinfo.scores[id]])
+      for (const [id, username] of Object.entries(pinfo.usernames))
+         items.push([0, username, pinfo.scores[id]])
 
       items.sort(function(first, second){
          return second[2] - first[2];
@@ -204,9 +204,9 @@
 
    function updateActionList(actionList){
       var al = [[],[],[],[]]
-      for(const id in actionList)
-         al[actionList[id].action].push(
-            [$gameInfo.playerInfo.usernames[id], actionList[id].roundScore] // plus time for debugging?
+      for(const [id, actionData] of Object.entries(actionList))
+         al[actionData.action].push(
+            [$gameInfo.playerInfo.usernames[id], actionData.roundScore] // plus time for debugging?
          )
       return al
    }
