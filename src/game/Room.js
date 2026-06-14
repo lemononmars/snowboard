@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import gameCreator from './Game';
 const ROOM_STATUS_PREGAME = 0
 const ROOM_STATUS_PLAYING = 1
@@ -79,7 +80,9 @@ export default function (io) {
   class RoomList{
     constructor() {
       this.rooms = {}
-      this.addDummyRooms() // for debugging purpose
+      if (process.env.NODE_ENV !== 'production') {
+        this.addDummyRooms() // for debugging purpose
+      }
     }
 
     addDummyRooms(){
@@ -148,6 +151,9 @@ export default function (io) {
 
 function generateRoomID(){
   var s = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  var randomstr = Array(4).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('')
+  var randomstr = '';
+  for (let i = 0; i < 4; i++) {
+    randomstr += s.charAt(crypto.randomInt(0, s.length));
+  }
   return randomstr
 }
