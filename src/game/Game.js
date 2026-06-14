@@ -285,14 +285,6 @@ export default function (io) {
       ]
       const types = ['V','A','A','A','AV','V','A','A','A','AV','A','A','A','A','A','A','A','V','A','A','A','V','V','A','A','V','A','V','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','T','T','V','V','V','V','V','S','V','S','V','V','T','T'
       ]
-
-      const letterTile = letters.map((x,i) => {return{
-        letter: letters[i],
-        freq: frequencies[i],
-        rarity: rarities[i],
-        score: scores[i],
-        type: types[i]
-      }})
     }
   }
   return {GameDice, GameSpaceSpy, GameWordWar, GamePakklongCard, GamePakklongBoard}
