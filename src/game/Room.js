@@ -80,7 +80,9 @@ export default function (io) {
   class RoomList{
     constructor() {
       this.rooms = {}
-      this.addDummyRooms() // for debugging purpose
+      if (process.env.NODE_ENV !== 'production') {
+        this.addDummyRooms() // for debugging purpose
+      }
     }
 
     addDummyRooms(){
