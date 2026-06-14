@@ -122,7 +122,7 @@ export default function (io) {
 
     filterByTitle(title){
       // return [[roomID, {roomInfo}],...]
-      return Object.entries(this.rooms).map(([k,v]) => [k,v.roomInfo()]).filter(([k,v]) => v.gameTitle === title)
+      return Object.entries(this.rooms).filter(([k,v]) => v.gameTitle === title).map(([k,v]) => [k,v.roomInfo()])
     }
 
     attemptToJoin(roomID){
