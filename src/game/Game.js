@@ -1,5 +1,4 @@
 export default function (io) {
-  // TODO: add subclasses for different games
   class Game{
     constructor(gameTitle, gameConfigs, players, roomID){
       this.gameConfigs = gameConfigs // shuffle, chosenTheme, gameLength, etc.
