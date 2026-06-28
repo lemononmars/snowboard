@@ -4,7 +4,7 @@ const ROOM_STATUS_PLAYING = 1
 const ROOM_STATUS_POSTGAME = 2
 
 export default function (io) {
-  const {GameDice, GameSpaceSpy} = gameCreator(io)
+  const {GameDice, GameSpaceSpy, GamePakklongBoard} = gameCreator(io)
   class Room {
     constructor(gameTitle) {
       this.gameTitle = gameTitle;
@@ -18,22 +18,36 @@ export default function (io) {
     }
 
     addPlayer(socket){
-      this.players[socket.data.userID] = socket
+      const userID = socket.data?.userID || socket.userID;
+      const username = socket.data?.username || socket.username;
+
+      this.players[userID] = socket
       if(Object.keys(this.players).length == 1)
-        this.hostUserID = socket.data.userID
+        this.hostUserID = userID
       socket.join(this.roomID)
-      socket.data.roomID = this.roomID
-      io.to(this.roomID).emit('add player', {userID:socket.userID, username:socket.username})
+      if (socket.data) {
+        socket.data.roomID = this.roomID;
+      } else {
+        socket.roomID = this.roomID;
+      }
+      io.to(this.roomID).emit('add player', {userID: userID, username: username})
     }
 
     removePlayer(socket){
-      if (!(socket.data.userID in this.players))
+      const userID = socket.data?.userID || socket.userID;
+      const username = socket.data?.username || socket.username;
+
+      if (!(userID in this.players))
         return;
       
-      delete this.players[socket.data.userID]
-      delete socket.data.roomID
+      delete this.players[userID]
+      if (socket.data) {
+        delete socket.data.roomID;
+      } else {
+        delete socket.roomID;
+      }
       socket.leave(this.roomID)
-      io.to(this.roomID).emit('remove player', {userID:socket.userID, username:socket.username})
+      io.to(this.roomID).emit('remove player', {userID: userID, username: username})
       return Object.keys(this.players).length === 0 // true if room is now empty
     }
 
@@ -42,6 +56,7 @@ export default function (io) {
         switch(this.gameTitle) {
           case 'pakklongdice': this.game = new GameDice(this.gameTitle, configs, this.players, this.roomID); break;
           case 'spacespy': this.game = new GameSpaceSpy(this.gameTitle, configs, this.players, this.roomID); break;
+          case 'pakklongboard': this.game = new GamePakklongBoard(this.gameTitle, configs, this.players, this.roomID); break;
           default: break;
         }
       }

@@ -5,54 +5,20 @@
    const border_style_list = ['solid', 'dotted', 'dashed', 'double']
 
    $: questionDiceImages = questionDice.map(x => {return {
-               'url': `./pakklongdice/img/${$gameConfigs.chosenTheme}/${x.type+1}.png`,
-               'color': color_list[x.color],
-               'style': border_style_list[x.color]
-            }});
-
+                'url': `/pakklongdice/img/${$gameConfigs.chosenTheme}/${x.type+1}.png`,
+                'color': color_list[x.color],
+                'style': border_style_list[x.color]
+             }});
 </script>
 
-<div id = 'dice-zone-container'>
-   {#each questionDiceImages as qd, i}
-      <img src={qd.url} class = 'dice-img' style = 'background-color:{qd.color}; border-style:{qd.style}' alt = '{qd.color} and {qd.style}'>
-      {#if i%3 == 2}<br>{/if}
+<div class="flex flex-wrap justify-center gap-3 py-2 max-w-lg mx-auto">
+   {#each questionDiceImages as qd}
+      <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-[3px] shadow-sm transition-transform duration-200 hover:scale-105" 
+           style="background-color: {qd.color}; border-style: {qd.style}; border-color: rgba(0, 0, 0, 0.2)">
+         <img src={qd.url} class="w-full h-full p-1.5 object-contain select-none" alt="Dice Face">
+      </div>
    {/each}
 </div>
 
 <style>
-/* 
-mobile version 
-*/
-#dice-zone-container{
-  position: fixed;
-  width: 100%;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center
-}
-.dice-img{
-  height: 100px;
-  width: 100px;
-  border-radius: 2px;
-}
-
-@media only screen and (min-width: 720px){
-#dice-zone-container{
-  position: relative;
-  width: auto;
-  top: 100px;
-  left: auto;
-  transform: none;
-  text-align: center
-}
-
-.dice-img{
-  height: 120px;
-  width: 120px;
-  border-radius: 3px;
- }
-}
 </style>
-   
-

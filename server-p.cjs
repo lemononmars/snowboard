@@ -156,8 +156,8 @@ io.on('connection', function(socket){
   socket.on('start game', function(data) {
     var numBots = Number(data);
     var numPlayers = Object.keys(gameRooms[socket.room]).length;
-    // check if the number of players is valid (2-6)
-    if (numPlayers + numBots > 1 && numPlayers + numBots < 7) {
+    // check if the number of players is valid (1-6)
+    if (numPlayers + numBots > 0 && numPlayers + numBots < 7) {
 
       var plist = []; // list of players
       for (const player in gameRooms[socket.room])

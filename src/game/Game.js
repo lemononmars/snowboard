@@ -50,9 +50,9 @@ export default function (io) {
     }
 
     abort(){
-      this.roundInfo.round = this.gameConfigs.roundLength // maybe there's a better way..... like state
-      io.to(this.roomID).emit('end round', this.gameInfo())
-      this.gameEnd()
+      io.to(this.roomID).emit('game aborted', this.gameInfo())
+      clearTimeout(this.timeOut)
+      this.isPlaying = false
     }
 
     shuffleArray(array) {
@@ -257,6 +257,31 @@ export default function (io) {
     }
   }
 
+  class GamePakklongBoard extends Game {
+    constructor(gameTitle, gameConfigs, players, roomID) {
+      super(gameTitle, gameConfigs, players, roomID);
+    }
+    
+    restart(configs) {
+      this.gameConfigs = configs;
+    }
+
+    newRound() {
+      // no-op for board game
+    }
+
+    gameInfo() {
+      const plist = Object.values(this.players).map(p => p.data?.username || p.username || 'Player');
+      return {
+        gameConfigs: this.gameConfigs,
+        gameTitle: this.gameTitle,
+        gameId: this.roomID,
+        players: plist,
+        numBots: Number(this.gameConfigs.numBots || 0)
+      };
+    }
+  }
+
   class GameSpaceSpy extends Game{
 
   }
@@ -287,5 +312,5 @@ export default function (io) {
       }})
     }
   }
-  return {GameDice, GameSpaceSpy, GameWordWar}
+  return {GameDice, GameSpaceSpy, GameWordWar, GamePakklongBoard}
 }

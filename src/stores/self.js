@@ -1,14 +1,19 @@
 import { persistStore } from './persistStore'
 import socket from './socket'
+import nameGen from '../game/name.js'
 
 const defaultInfo = {
-  userID: 1224,
-  username: 'Yukiho',
-  roomID: 'lobby'
+  userID: Math.random().toString(36).substring(2, 11),
+  username: typeof window !== 'undefined' ? nameGen() : 'Player',
+  roomID: 'lobby',
+  isDarkMode: false
 }
 
 export const selfInfo = persistStore('selfInfo', defaultInfo)
 
 socket.on('initialize user', newSelf => {
-  selfInfo.set(newSelf)
+  selfInfo.update(current => ({
+    ...current,
+    ...newSelf
+  }))
 })
